@@ -41,8 +41,9 @@ if prompt := str.chat_input("Type your message here..."):
             )
             full_response = response.text
             message_placeholder.markdown(full_response)
-        except Exception as e:
-            full_response = f"Error: {str(e)}"
+                    except Exception as e:
+            full_response = f"Error generating response: {e}"
             message_placeholder.markdown(full_response)
+
             
     str.session_state.messages.append({"role": "assistant", "content": full_response})
