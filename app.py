@@ -31,9 +31,9 @@ if prompt := st.chat_input("Ask Deep Search anything..."):
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
         try:
-            # Using the absolute current active standard flash architecture
+            # Using the universally accessible production stable model
             response = client.models.generate_content(
-                model='gemini-2.5-flash',
+                model='gemini-2.0-flash',
                 contents=prompt,
             )
             full_response = response.text
