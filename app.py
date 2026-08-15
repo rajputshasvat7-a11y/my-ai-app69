@@ -3,7 +3,7 @@ from google import genai
 
 # Setup webpage configuration for mobile and PC
 st.set_page_config(page_title="AI Chatbot", page_icon="🤖", layout="centered")
-st.title("💬 My Personal AI Chatbot")
+st.title("💬 Deep Search")
 
 # Initialize Gemini Client safely using Streamlit Secrets
 try:
@@ -27,12 +27,13 @@ if prompt := st.chat_input("Type your message here..."):
     st.chat_message("user").markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
 
-    # Generate response from Gemini 2.5 Flash
+    # Generate response from Gemini
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
         try:
+            # Using the core fallback identifier for stable project access
             response = client.models.generate_content(
-                model='gemini-2.5-flash-latest',
+                model='gemini-1.5-flash',
                 contents=prompt,
             )
             full_response = response.text
