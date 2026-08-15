@@ -1,13 +1,13 @@
 import streamlit as st
-import google.generativeai as genai
+from google import genai
 
 # Setup webpage configuration for mobile and PC
-st.set_page_config(page_title="AI Chatbot", page_icon="🤖", layout="centered")
-st.title("💬 Deep Search")
+st.set_page_config(page_title="Deep Search AI", page_icon="🔍", layout="centered")
+st.title("🔍 Deep Search")
 
 # Initialize Gemini Client safely using Streamlit Secrets
 try:
-    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+    client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 except Exception:
     st.error("Please configure your GEMINI_API_KEY in the Streamlit Cloud dashboard settings.")
     st.stop()
@@ -22,7 +22,7 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 # React to user input
-if prompt := st.chat_input("Type your message here..."):
+if prompt := st.chat_input("Ask Deep Search anything..."):
     # Display user message
     st.chat_message("user").markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
@@ -31,8 +31,11 @@ if prompt := st.chat_input("Type your message here..."):
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
         try:
-            model = genai.GenerativeModel("gemini-1.5-flash")
-            response = model.generate_content(prompt)
+            # Using the absolute current active standard flash architecture
+            response = client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=prompt,
+            )
             full_response = response.text
             message_placeholder.markdown(full_response)
         except Exception as e:
