@@ -1,5 +1,5 @@
 import streamlit as st
-from google import genai
+import google.generativeai as genai
 
 # Setup webpage configuration for mobile and PC
 st.set_page_config(page_title="AI Chatbot", page_icon="🤖", layout="centered")
@@ -7,7 +7,7 @@ st.title("💬 Deep Search")
 
 # Initialize Gemini Client safely using Streamlit Secrets
 try:
-    client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 except Exception:
     st.error("Please configure your GEMINI_API_KEY in the Streamlit Cloud dashboard settings.")
     st.stop()
@@ -31,11 +31,8 @@ if prompt := st.chat_input("Type your message here..."):
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
         try:
-            # Using the core fallback identifier for stable project access
-            response = client.models.generate_content(
-                model='gemini-1.5-flash',
-                contents=prompt,
-            )
+            model = genai.GenerativeModel("gemini-1.5-flash")
+            response = model.generate_content(prompt)
             full_response = response.text
             message_placeholder.markdown(full_response)
         except Exception as e:
