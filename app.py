@@ -30,14 +30,14 @@ if prompt := st.chat_input("Ask Deep Search anything..."):
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
         
-        # Structure payload standard for llama-3
+        # Structure payload standard for Qwen
         api_url = "https://huggingface.co"
         headers = {
             "Authorization": f"Bearer {st.secrets['HF_TOKEN']}",
             "Content-Type": "application/json"
         }
         payload = {
-            "inputs": f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n",
+            "inputs": f"<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n",
             "parameters": {"max_new_tokens": 1024, "return_full_text": False}
         }
         
@@ -46,7 +46,7 @@ if prompt := st.chat_input("Ask Deep Search anything..."):
             with urllib.request.urlopen(req) as response:
                 result = json.loads(response.read().decode("utf-8"))
                 
-                # Extract text reliably across model variances
+                # Extract text reliably
                 if isinstance(result, list) and len(result) > 0:
                     full_response = result[0].get("generated_text", "No text generated.")
                 elif isinstance(result, dict):
