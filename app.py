@@ -1,15 +1,14 @@
 import streamlit as st
-from google import genai
+import urllib.request
+import json
 
 # Setup webpage configuration for mobile and PC
 st.set_page_config(page_title="Deep Search AI", page_icon="🔍", layout="centered")
 st.title("🔍 Deep Search")
 
-# Initialize Gemini Client safely using Streamlit Secrets
-try:
-    client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
-except Exception:
-    st.error("Please configure your GEMINI_API_KEY in the Streamlit Cloud dashboard settings.")
+# Pull secret token safely
+if "HF_TOKEN" not in st.secrets:
+    st.error("Please configure your HF_TOKEN in the Streamlit Cloud dashboard settings.")
     st.stop()
 
 # Initialize chat history in session state
@@ -27,19 +26,37 @@ if prompt := st.chat_input("Ask Deep Search anything..."):
     st.chat_message("user").markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
 
-    # Generate response from Gemini
+    # Generate response from Hugging Face Serverless Architecture
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
+        
+        # Structure payload standard for llama-3
+        api_url = "https://huggingface.co"
+        headers = {
+            "Authorization": f"Bearer {st.secrets['HF_TOKEN']}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "inputs": f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n",
+            "parameters": {"max_new_tokens": 1024, "return_full_text": False}
+        }
+        
         try:
-            # Using the production-ready active flash model
-            response = client.models.generate_content(
-                model='gemini-2.5-pro',
-                contents=prompt,
-            )
-            full_response = response.text
+            req = urllib.request.Request(api_url, data=json.dumps(payload).encode("utf-8"), headers=headers)
+            with urllib.request.urlopen(req) as response:
+                result = json.loads(response.read().decode("utf-8"))
+                
+                # Extract text reliably across model variances
+                if isinstance(result, list) and len(result) > 0:
+                    full_response = result[0].get("generated_text", "No text generated.")
+                elif isinstance(result, dict):
+                    full_response = result.get("generated_text", str(result))
+                else:
+                    full_response = str(result)
+                    
             message_placeholder.markdown(full_response)
         except Exception as e:
-            full_response = f"Error generating response: {e}"
+            full_response = f"Service compiling. Please send your message once more in 10 seconds. (Details: {e})"
             message_placeholder.markdown(full_response)
             
     st.session_state.messages.append({"role": "assistant", "content": full_response})
