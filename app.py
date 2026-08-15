@@ -37,8 +37,8 @@ if prompt := st.chat_input("Ask Deep Search anything..."):
             "Content-Type": "application/json"
         }
         payload = {
-            "inputs": f"<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n",
-            "parameters": {"max_new_tokens": 1024, "return_full_text": False}
+            "inputs": prompt,
+            "parameters": {"max_new_tokens": 512}
         }
         
         try:
@@ -46,9 +46,9 @@ if prompt := st.chat_input("Ask Deep Search anything..."):
             with urllib.request.urlopen(req) as response:
                 result = json.loads(response.read().decode("utf-8"))
                 
-                # Extract text reliably
+                # Bulletproof text parsing for Hugging Face list outputs
                 if isinstance(result, list) and len(result) > 0:
-                    full_response = result[0].get("generated_text", "No text generated.")
+                    full_response = result[0].get("generated_text", "No text found.")
                 elif isinstance(result, dict):
                     full_response = result.get("generated_text", str(result))
                 else:
@@ -56,7 +56,7 @@ if prompt := st.chat_input("Ask Deep Search anything..."):
                     
             message_placeholder.markdown(full_response)
         except Exception as e:
-            full_response = f"Service compiling. Please send your message once more in 10 seconds. (Details: {e})"
+            full_response = f"Error processing response: {e}"
             message_placeholder.markdown(full_response)
             
     st.session_state.messages.append({"role": "assistant", "content": full_response})
