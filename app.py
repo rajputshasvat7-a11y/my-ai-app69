@@ -33,7 +33,7 @@ if prompt := st.chat_input("Ask Deep Search anything..."):
         try:
             # Using the production-ready active flash model
             response = client.models.generate_content(
-                model='gemini-3.7-flash',
+                model='gemini-2.5-pro',
                 contents=prompt,
             )
             full_response = response.text
