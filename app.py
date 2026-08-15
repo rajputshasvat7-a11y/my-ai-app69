@@ -32,7 +32,7 @@ if prompt := st.chat_input("Type your message here..."):
         message_placeholder = st.empty()
         try:
             response = client.models.generate_content(
-                model='gemini-2.5-flash',
+                model='gemini-2.5-flash-latest',
                 contents=prompt,
             )
             full_response = response.text
