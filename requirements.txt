@@ -1,3 +1,2 @@
-streamlit>=1.35.0
+streamlit[auth]>=1.35.0
 duckduckgo-search>=6.2.4
-streamlit-authenticator
