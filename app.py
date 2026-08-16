@@ -1,5 +1,4 @@
 import streamlit as st
-import asyncio
 from duckduckgo_search import DDGS
 
 # Setup webpage configuration for mobile and PC
@@ -14,21 +13,16 @@ query = st.text_input("", placeholder="Search the web or type a URL...")
 if query:
     with st.spinner(f"Searching the live web for '{query}'..."):
         try:
-            # Async function to scrape live web snippets securely
-            async def fetch_results():
-                async with DDGS() as ddgs:
-                    # Fetches top 8 real-time web results
-                    results = [r for r in ddgs.text(query, max_results=8)]
-                    return results
+            # Pure synchronous execution layout for instant data fetches
+            with DDGS() as ddgs:
+                results = list(ddgs.text(query, max_results=8))
 
-            web_results = asyncio.run(fetch_results())
-
-            if web_results:
-                st.success(f"Found {len(web_results)} live matches:")
+            if results:
+                st.success(f"Found {len(results)} live matches:")
                 st.write("---")
                 
                 # Display results beautifully with clean layouts
-                for idx, result in enumerate(web_results, 1):
+                for idx, result in enumerate(results, 1):
                     st.markdown(f"### {idx}. [{result['title']}]({result['href']})")
                     st.markdown(f"*{result['href']}*")
                     st.info(result['body'])
