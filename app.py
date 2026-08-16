@@ -4,9 +4,9 @@ import urllib.parse
 import json
 
 # Setup standard clean layout
-st.set_page_config(page_title="Google", page_icon="🔍", layout="centered")
+st.set_page_config(page_title="Deep Search", page_icon="🔍", layout="centered")
 
-# Custom CSS for Pure Google UI Experience
+# Custom CSS for Pure Deep Search UI Experience
 st.markdown("""
 <style>
     /* Clean white light background layout */
@@ -16,12 +16,12 @@ st.markdown("""
         font-family: 'Roboto', arial, sans-serif;
     }
     
-    /* Google Multi-Color Styled Logo Text */
+    /* Deep Search Multi-Color Styled Logo Text */
     .google-logo-box {
         text-align: center;
         margin-top: 60px;
         margin-bottom: 25px;
-        font-size: 5.5rem;
+        font-size: 5rem;
         font-weight: bold;
         font-family: 'Product Sans', 'Arial', sans-serif;
         letter-spacing: -2px;
@@ -38,9 +38,11 @@ st.markdown("""
         font-size: 0.9rem;
         margin-top: -20px;
         margin-bottom: 30px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
     
-    /* Traditional Google Search Link Layouts */
+    /* Traditional Search Link Layouts */
     .google-card {
         background-color: #ffffff;
         padding: 5px 0px;
@@ -123,16 +125,17 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Render Google Styled Multi-Color Header Component
+# Render Custom Named Multi-Color Header Component
 st.markdown("""
 <div class='google-logo-box'>
-    <span class='g-blue'>G</span><span class='g-red'>o</span><span class='g-yellow'>o</span><span class='g-blue'>g</span><span class='g-green'>l</span><span class='g-red'>e</span>
+    <span class='g-blue'>D</span><span class='g-red'>e</span><span class='g-yellow'>e</span><span class='g-blue'>p</span>
+    <span class='g-green'>S</span><span class='g-red'>e</span><span class='g-yellow'>a</span><span class='g-blue'>r</span><span class='g-green'>c</span><span class='g-red'>h</span>
 </div>
-<div class='google-subtext'>Custom Search Engine v4</div>
+<div class='google-subtext'>Instant Web Intelligence Engine</div>
 """, unsafe_allow_html=True)
 
 # Clean Minimalist Search Input Field
-query = st.text_input("Google Search", placeholder="Search the web or type a URL...", label_visibility="collapsed")
+query = st.text_input("Deep Search", placeholder="Search the web or type a URL...", label_visibility="collapsed")
 
 if query:
     st.write("") 
@@ -173,7 +176,7 @@ if query:
                         base_domain = raw_url
                         display_name = raw_url
 
-                    # Pull high-resolution website favicons matching traditional google style
+                    # Pull high-resolution website favicons matching traditional style
                     favicon_url = f"https://google.com{base_domain}"
                     
                     card_html = f"""
