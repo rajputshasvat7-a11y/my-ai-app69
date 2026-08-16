@@ -2,187 +2,196 @@ import streamlit as st
 import urllib.request
 import urllib.parse
 import json
-import re
 
-# Setup premium layout version 4
-st.set_page_config(page_title="Deep Search Engine // Cyber-Hub", page_icon="🎮", layout="wide")
+# Setup standard clean layout
+st.set_page_config(page_title="Google", page_icon="🔍", layout="centered")
 
-# Custom CSS for Cyberpunk / Gaming Neon Interface
+# Custom CSS for Pure Google UI Experience
 st.markdown("""
 <style>
-    /* Dark cyberpunk void background */
+    /* Clean white light background layout */
     .stApp {
-        background: radial-gradient(circle at center, #0f0c1b 0%, #05020a 100%);
-        color: #00ffcc;
-        font-family: 'Segoe UI', Roboto, sans-serif;
+        background-color: #ffffff;
+        color: #202124;
+        font-family: 'Roboto', arial, sans-serif;
     }
     
-    /* Neon Glowing Title */
-    .gaming-title {
-        font-size: 3.5rem;
-        font-weight: 900;
+    /* Google Multi-Color Styled Logo Text */
+    .google-logo-box {
         text-align: center;
-        text-transform: uppercase;
-        letter-spacing: 4px;
-        color: #fff;
-        text-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055, 0 0 40px #ff0055;
-        margin-bottom: 2px;
+        margin-top: 60px;
+        margin-bottom: 25px;
+        font-size: 5.5rem;
+        font-weight: bold;
+        font-family: 'Product Sans', 'Arial', sans-serif;
+        letter-spacing: -2px;
     }
-    .gaming-subtitle {
+    .g-blue { color: #4285F4; }
+    .g-red { color: #EA4335; }
+    .g-yellow { color: #FBBC05; }
+    .g-green { color: #34A853; }
+    
+    /* Clean minimalist subtitle label */
+    .google-subtext {
         text-align: center;
-        color: #00ffcc;
-        font-size: 1rem;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        text-shadow: 0 0 8px rgba(0, 255, 204, 0.6);
-        margin-bottom: 40px;
+        color: #70757a;
+        font-size: 0.9rem;
+        margin-top: -20px;
+        margin-bottom: 30px;
     }
     
-    /* Cyber Gaming Results Cards */
-    .gaming-card {
-        background: rgba(15, 10, 30, 0.7);
-        border: 2px solid #ff0055;
-        border-radius: 8px;
-        padding: 22px;
-        margin-bottom: 22px;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 0 15px rgba(255, 0, 85, 0.2);
-        transition: all 0.3s ease;
-    }
-    .gaming-card:hover {
-        border-color: #00ffcc;
-        box-shadow: 0 0 25px rgba(0, 255, 204, 0.4);
-        transform: scale(1.01);
+    /* Traditional Google Search Link Layouts */
+    .google-card {
+        background-color: #ffffff;
+        padding: 5px 0px;
+        margin-bottom: 26px;
+        max-width: 652px;
     }
     
     /* Header layout for dynamic web favicon alignment */
     .card-header-layout {
         display: flex;
         align-items: center;
-        gap: 14px;
-        margin-bottom: 8px;
+        gap: 12px;
+        margin-bottom: 2px;
     }
     
-    /* Glowing dynamic logo image design */
+    /* Website attribution domain styling */
+    .google-meta-box {
+        display: flex;
+        flex-direction: column;
+    }
+    .google-display-name {
+        color: #202124;
+        font-size: 0.9rem;
+        line-height: 1.3;
+    }
+    .google-url {
+        color: #4d5156;
+        font-size: 0.75rem;
+        line-height: 1.3;
+        word-break: break-all;
+    }
+    
+    /* Micro Favicon Logo Settings */
     .favicon-logo {
-        width: 28px;
-        height: 28px;
-        border-radius: 4px;
-        background: #110b29;
-        border: 1px solid #00ffcc;
-        box-shadow: 0 0 8px rgba(0, 255, 204, 0.5);
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: #f1f3f4;
+        padding: 4px;
+        border: 1px solid #dadce0;
     }
     
-    /* Gaming Link Action Custom Elements */
-    .gaming-link {
-        font-size: 1.4rem;
-        color: #fff !important;
+    /* Classic Blue Hyperlinks */
+    .google-link {
+        font-size: 1.25rem;
+        color: #1a0dab !important;
         text-decoration: none !important;
-        font-weight: 700;
-        text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        display: inline-block;
+        margin-top: 4px;
+        margin-bottom: 4px;
     }
-    .gaming-card:hover .gaming-link {
-        color: #00ffcc !important;
-        text-shadow: 0 0 8px rgba(0, 255, 204, 0.8);
-    }
-    
-    .gaming-url {
-        color: #ff0055;
-        font-size: 0.85rem;
-        margin-bottom: 12px;
-        font-family: monospace;
-    }
-    .gaming-desc {
-        color: #b3a7d6;
-        font-size: 1rem;
-        line-height: 1.6;
+    .google-link:hover {
+        text-decoration: underline !important;
     }
     
-    /* Remove native application container components */
+    /* Traditional grey snippet text */
+    .google-desc {
+        color: #4d5156;
+        font-size: 0.9rem;
+        line-height: 1.57;
+        word-wrap: break-word;
+    }
+    
+    /* Adjusting Streamlit native input search bar look to be pill-shaped */
+    div[data-baseweb="input"] {
+        border-radius: 24px !important;
+        border: 1px solid #dadce0 !important;
+        box-shadow: none !important;
+        transition: box-shadow 0.2s;
+    }
+    div[data-baseweb="input"]:hover, div[data-baseweb="input"]:focus-within {
+        box-shadow: 0 1px 6px rgba(32,33,36,0.28) !important;
+        border-color: rgba(223,225,229,0) !important;
+    }
+    
+    /* Hiding Streamlit structural framework buttons */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
-# Render Cyberpunk Elements
-st.markdown("<div class='gaming-title'>DEEP SEARCH</div>", unsafe_allow_html=True)
-st.markdown("<div class='gaming-subtitle'>// SYSTEM STATUS: ONLINE // WEB SCRAPER V3</div>", unsafe_allow_html=True)
+# Render Google Styled Multi-Color Header Component
+st.markdown("""
+<div class='google-logo-box'>
+    <span class='g-blue'>G</span><span class='g-red'>o</span><span class='g-yellow'>o</span><span class='g-blue'>g</span><span class='g-green'>l</span><span class='g-red'>e</span>
+</div>
+<div class='google-subtext'>Custom Search Engine v4</div>
+""", unsafe_allow_html=True)
 
-# Gaming Themed Input Field
-query = st.text_input("QUERY_STRING", placeholder="ENTER TARGET KEYWORDS TO SCAN OBJECTIVES...", label_visibility="collapsed")
+# Clean Minimalist Search Input Field
+query = st.text_input("Google Search", placeholder="Search the web or type a URL...", label_visibility="collapsed")
 
 if query:
     st.write("") 
-    with st.spinner("SCANNING THE QUANTUM WEB MATRICES..."):
+    with st.spinner("Searching..."):
         try:
-            # Bulletproof, dependency-free direct HTTP networking layer
+            # High-speed decentralized SearXNG network processing layer
             encoded_query = urllib.parse.quote(query)
-            api_url = f"https://duckduckgo.com{encoded_query}"
+            api_url = f"https://searx.be{encoded_query}&format=json"
             
             req = urllib.request.Request(
                 api_url, 
-                headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+                headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
             )
             
             with urllib.request.urlopen(req) as response:
-                html_content = response.read().decode('utf-8')
-            
-            # Extract matches using clean pattern matching
-            links = re.findall(r'<a class="result__url"[^>]*href="([^"]+)"', html_content)
-            titles = re.findall(r'<a class="result__snippet"[^>]*href="[^"]+">([^<]+)</a>', html_content)
-            snippets = re.findall(r'<td class="result__snippet">([^<]+)</td>', html_content)
-            
-            # Fallback patterns to capture varying structure configurations
-            if not links:
-                links = re.findall(r'href="([^"]+)" class="links_main__href"', html_content)
-                titles = re.findall(r'class="links_main__href">([^<]+)</a>', html_content)
-                snippets = re.findall(r'class="links_main__snippet">([^<]+)</div>', html_content)
+                data = json.loads(response.read().decode('utf-8'))
+                results = data.get('results', [])
 
-            # Standardize sizes across parsed structures
-            min_length = min(len(links), len(titles), len(snippets), 8)
+            # Extract up to top 8 traditional search entries
+            min_length = min(len(results), 8)
 
             if min_length > 0:
-                st.markdown(f"<p style='color: #ff0055; font-weight: bold;'>[+] TARGET MATCHES LOCATED: {min_length}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='color: #70757a; font-size: 0.9rem; margin-bottom: 20px;'>About {min_length} results found</p>", unsafe_allow_html=True)
                 st.write("---")
                 
                 for idx in range(min_length):
-                    raw_url = links[idx]
+                    result = results[idx]
+                    raw_url = result.get('url', '')
+                    title_text = result.get('title', 'Untitled Entry')
+                    desc_text = result.get('content', 'No context details available.')
                     
-                    # Safe split parsing to avoid array errors
-                    if "uddg=" in raw_url:
-                        try:
-                            raw_url = urllib.parse.unquote(raw_url.split("uddg=")[1].split("&")[0])
-                        except Exception:
-                            pass
-                    
-                    title_text = titles[idx].strip()
-                    desc_text = snippets[idx].strip()
-                    
-                    # Isolate clean domain base targets safely using urlparse
+                    # Extract clean website name targets securely using urlparse
                     try:
                         parsed_uri = urllib.parse.urlparse(raw_url)
                         base_domain = f"{parsed_uri.scheme}://{parsed_uri.netloc}"
+                        display_name = parsed_uri.netloc.replace("www.", "")
                     except Exception:
                         base_domain = raw_url
+                        display_name = raw_url
 
-                    # Pull high-resolution logos automatically
+                    # Pull high-resolution website favicons matching traditional google style
                     favicon_url = f"https://google.com{base_domain}"
                     
                     card_html = f"""
-                    <div class="gaming-card">
+                    <div class="google-card">
                         <div class="card-header-layout">
-                            <img class="favicon-logo" src="{favicon_url}" alt="logo">
-                            <a class="gaming-link" href="{raw_url}" target="_blank">{idx + 1}. {title_text}</a>
+                            <img class="favicon-logo" src="{favicon_url}" alt="site icon">
+                            <div class="google-meta-box">
+                                <span class="google-display-name">{display_name}</span>
+                                <span class="google-url">{raw_url}</span>
+                            </div>
                         </div>
-                        <div class="gaming-url">>> TARGET_URI: {raw_url}</div>
-                        <div class="gaming-desc">{desc_text}</div>
+                        <a class="google-link" href="{raw_url}" target="_blank">{title_text}</a>
+                        <div class="google-desc">{desc_text}</div>
                     </div>
                     """
                     st.markdown(card_html, unsafe_allow_html=True)
             else:
-                st.markdown("<div style='border: 2px solid #ff0055; border-radius: 4px; padding: 15px; color: #ff0055; font-weight: bold; background: rgba(255,0,85,0.1);'>[-] SEARCH MATRIX EMPTY. TARGET UNRESOLVED.</div>", unsafe_allow_html=True)
+                st.markdown("<p style='color:#202124; font-size:0.95rem;'>Your search did not match any documents.</p>", unsafe_allow_html=True)
 
         except Exception as e:
-            st.markdown(f"<div style='color:#ff0055; font-weight:bold;'>NETWORK FAILURE: {e}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='color:#70757a; font-size:0.9rem;'>Network timeout. Please hit enter to try again. (Ref: {e})</div>", unsafe_allow_html=True)
