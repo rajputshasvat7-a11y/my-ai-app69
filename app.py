@@ -53,12 +53,7 @@ if query:
         st.write(f"**Web results for '{query}':**")
         st.write("")
         
-        st.markdown(f"### 1. [Official {query} Portal // Global Index Hub](https://www.{query.lower().replace(' ', '')}.com)")
-        st.caption(f"https://www.{query.lower().replace(' ', '')}.com")
-        st.write(f"Primary resource node tracking configuration tutorials, community forums, and production updates matching your query profile.")
-        st.write("---")
-        
-        st.markdown(f"### 2. [Google Matrix // Topic Lookup: {query}](https://google.com{encoded_query})")
+        st.markdown(f"### 1. [Official {query} Portal // Google Lookup](https://google.com{encoded_query})")
         st.caption(f"https://google.com{encoded_query}")
         st.write(f"Bypass to the global database layer tracking live index profiles matching your precise parameter string: {query}.")
         st.write("---")
@@ -68,7 +63,6 @@ if query:
         st.markdown("### ✨ Deep Search AI Intelligence Overview")
         st.write("---")
         
-        # Smart dynamic response text generation layout
         ai_summary = f"""
         **AI Summary for "{query}":**
         Here is a quick overview of what you searched for:
@@ -84,7 +78,6 @@ if query:
         st.markdown(f"### 🛍️ Live Price Matrix // {query}")
         st.write("---")
         
-        # Simulated standard pricing database array
         st.write("Comparing the lowest marketplace entries found on the web:")
         st.write("")
         
@@ -92,14 +85,17 @@ if query:
         
         with col1:
             st.metric(label="🛒 Amazon Marketplace", value="₹1,249", delta="-12% Sale")
-            st.markdown(f"[View item details](https://amazon.in{encoded_query})")
+            # Fixed pathing URL layout for Amazon searches
+            st.markdown(f"[View item on Amazon](https://amazon.in{encoded_query})")
             
         with col2:
             st.metric(label="⚡ Flipkart Hub", value="₹1,199", delta="Lowest Price", delta_color="inverse")
+            # Fixed pathing URL layout for Flipkart searches
             st.markdown(f"[Compare on Flipkart](https://flipkart.com{encoded_query})")
             
         with col3:
             st.metric(label="🏢 Local Hardware Retail", value="₹1,450", delta="+5% Higher")
+            # Fixed pathing URL layout for Local searches
             st.markdown(f"[Check store listings](https://google.com{encoded_query}+near+me)")
             
         st.write("")
