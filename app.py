@@ -66,7 +66,9 @@ if not st.session_state.user_email:
         "prompt=select_account"
     )
     
-    st.markdown(f"<div style='text-align: center;'><a href='{auth_url}' target='_self'><button style='background-color: #4285F4; color: white; border: none; padding: 10px 24px; border-radius: 4px; cursor: pointer; font-size: 16px;'>Sign in with Google</button></a></div>", unsafe_allow_html=True)
+    # Native Streamlit button layout to handle safe redirection
+    if st.button("Sign in with Google", type="primary"):
+        st.markdown(f'<meta http-equiv="refresh" content="0; url={auth_url}">', unsafe_allow_html=True)
     st.stop()
 
 # Email Restriction Verification Layer
@@ -88,7 +90,7 @@ if st.sidebar.button("Sign Out"):
 st.markdown("<h1 style='text-align: center;'>🔍 Deep Search Engine</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; color: gray;'>Search the live web directly from mobile or PC</p>", unsafe_allow_html=True)
 
-query = st.text_input("", placeholder="Search the web or type a URL...")
+query = st.text_input("Enter search keywords", placeholder="Search the web or type a URL...", label_visibility="collapsed")
 
 if query:
     with st.spinner(f"Searching the live web for '{query}'..."):
