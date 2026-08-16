@@ -18,31 +18,33 @@ if query:
     st.write("") 
     with st.spinner("Searching..."):
         try:
-            # High-speed decentralized network processing layer
+            # Bulletproof connection to the official Wikipedia search matrix
             encoded_query = urllib.parse.quote(query)
-            api_url = f"https://searx.be{encoded_query}&format=json"
+            api_url = f"https://wikipedia.org{encoded_query}&limit=8&namespace=0&format=json"
             
             req = urllib.request.Request(
                 api_url, 
-                headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+                headers={'User-Agent': 'DeepSearchEngine/1.0 (Contact: admin@example.com)'}
             )
             
             with urllib.request.urlopen(req) as response:
                 data = json.loads(response.read().decode('utf-8'))
-                results = data.get('results', [])
+                
+                # Wikipedia open search format returns: [query, [titles], [descriptions], [links]]
+                titles = data[1]
+                snippets = data[2]
+                links = data[3]
 
-            # Extract top 8 results
-            min_length = min(len(results), 8)
+            min_length = len(links)
 
             if min_length > 0:
                 st.write(f"**Found {min_length} web matches:**")
                 st.write("")
                 
                 for idx in range(min_length):
-                    result = results[idx]
-                    raw_url = result.get('url', '')
-                    title_text = result.get('title', 'Untitled Entry')
-                    desc_text = result.get('content', 'No content details available.')
+                    title_text = titles[idx]
+                    desc_text = snippets[idx] if snippets[idx] else "Click link to view full entry."
+                    raw_url = links[idx]
                     
                     # Displaying in clean normal markdown text
                     st.markdown(f"### {idx + 1}. [{title_text}]({raw_url})")
@@ -53,4 +55,4 @@ if query:
                 st.info("No search matches found. Try different keywords.")
 
         except Exception as e:
-            st.error(f"Network timeout. Please hit enter to try again. (Details: {e})")
+            st.error(f"Network error. Please try hitting enter again. (Details: {e})")
