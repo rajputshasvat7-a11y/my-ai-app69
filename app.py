@@ -4,8 +4,8 @@ from duckduckgo_search import DDGS
 # Setup webpage configuration for mobile and PC
 st.set_page_config(page_title="Deep Search Engine", page_icon="🔍", layout="wide")
 
-# Streamlit native single-line login mechanism
-if not st.experimental_user.is_logged_in:
+# Streamlit native single-line login mechanism using the updated stable API
+if not st.user.is_logged_in:
     st.markdown("<h2 style='text-align: center;'>🔐 Access Protected</h2>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center;'>Please authenticate with your approved Google account to open Deep Search Engine.</p>", unsafe_allow_html=True)
     
@@ -15,7 +15,7 @@ if not st.experimental_user.is_logged_in:
     st.stop()
 
 # --- Main App Execution Logic ---
-st.sidebar.success(f"Authenticated: {st.experimental_user.email}")
+st.sidebar.success(f"Authenticated: {st.user.email}")
 if st.sidebar.button("Sign Out"):
     st.logout()
     st.rerun()
