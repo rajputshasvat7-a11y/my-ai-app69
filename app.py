@@ -149,17 +149,21 @@ if query:
                 
                 for idx in range(min_length):
                     raw_url = links[idx]
-                    # Parse out proxy nesting parameters if existing
+                    
+                    # Safe split parsing to avoid array errors
                     if "uddg=" in raw_url:
-                        raw_url = urllib.parse.unquote(raw_url.split("uddg=")[1].split("&")[0])
+                        try:
+                            raw_url = urllib.parse.unquote(raw_url.split("uddg=")[1].split("&")[0])
+                        except Exception:
+                            pass
                     
                     title_text = titles[idx].strip()
                     desc_text = snippets[idx].strip()
                     
-                    # Isolate clean domain base targets
+                    # Isolate clean domain base targets safely using urlparse
                     try:
-                        domain_parts = raw_url.split("//")[1].split("/")[0]
-                        base_domain = f"https://{domain_parts}"
+                        parsed_uri = urllib.parse.urlparse(raw_url)
+                        base_domain = f"{parsed_uri.scheme}://{parsed_uri.netloc}"
                     except Exception:
                         base_domain = raw_url
 
@@ -181,4 +185,4 @@ if query:
                 st.markdown("<div style='border: 2px solid #ff0055; border-radius: 4px; padding: 15px; color: #ff0055; font-weight: bold; background: rgba(255,0,85,0.1);'>[-] SEARCH MATRIX EMPTY. TARGET UNRESOLVED.</div>", unsafe_allow_html=True)
 
         except Exception as e:
-            st.markdown(f"<div style='color:#ff0055;'>NETWORK FAILURE: {e}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='color:#ff0055; font-weight:bold;'>NETWORK FAILURE: {e}</div>", unsafe_allow_html=True)
