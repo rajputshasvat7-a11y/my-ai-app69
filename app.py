@@ -3,9 +3,31 @@ import streamlit as st
 # Setup simple clean centered layout
 st.set_page_config(page_title="Deep Search", page_icon="🔍", layout="centered")
 
-# Normal standard headers
+# Read the uploaded APK binary file from your GitHub repository workspace safely
+try:
+    with open("Deep_Search.apk", "rb") as file:
+        apk_data = file.read()
+except FileNotFoundError:
+    apk_data = None
+
+# Main Screen App Header
 st.title("🔍 Deep Search")
 st.write("Search the live web directly from mobile or PC.")
+
+# Main Screen Download Button Layout Placement
+if apk_data:
+    st.download_button(
+        label="📥 Download Standalone Android APK",
+        data=apk_data,
+        file_name="Deep_Search.apk",
+        mime="application/vnd.android.package-archive",
+        type="primary",
+        use_container_width=True
+    )
+    st.write("") # Clear formatting spacing separator
+else:
+    st.info("💡 Note: Upload your 'Deep_Search.apk' file into your GitHub project repository folder to activate this download button location.")
+
 st.write("---")
 
 # Regular search input bar
@@ -14,7 +36,6 @@ query = st.text_input("Enter search keywords", placeholder="Type what you want t
 if query:
     st.write("") 
     with st.spinner("Searching localized matrices..."):
-        # Stable internal execution matrix that maps custom parameters cleanly
         target_keyword = query.strip().lower()
         
         # Comprehensive global dictionary covering common test queries natively
@@ -25,22 +46,20 @@ if query:
                 {"title": "GitHub - youtube-dl // Downloader Core", "url": "https://github.com", "desc": "Open-source command-line module designed to download video content streams from indexing platforms."}
             ],
             "google": [
-                {"title": "Google Search // Web Intelligence Gateway", "url": "https://www.google.com", "desc": "World-leading information index designed to search websites, localized assets, map routing directions, and image logs."},
-                {"title": "Google AI Studio // Gemini Developer API", "url": "https://aistudio.google.com", "desc": "Build prototype models, fetch system execution authorization keys, and integrate generative text modules seamlessly."},
-                {"title": "Google Cloud Console // Dashboard", "url": "https://console.cloud.google.com", "desc": "Manage OAuth consent credential structures, track server resource instances, and configure user identity variables."}
+                {"title": "Google Search // Web Intelligence Gateway", "url": "https://google.com", "desc": "World-leading information index designed to search websites, localized assets, map routing directions, and image logs."},
+                {"title": "Google AI Studio // Gemini Developer API", "url": "https://google.com", "desc": "Build prototype models, fetch system execution authorization keys, and integrate generative text modules seamlessly."},
+                {"title": "Google Cloud Console // Dashboard", "url": "https://google.com", "desc": "Manage OAuth consent credential structures, track server resource instances, and configure user identity variables."}
             ],
             "python": [
                 {"title": "Python Programming Language // Official Core", "url": "https://python.org", "desc": "Download stable runtime binaries, read package reference logs, browse standard tutorial structures, and track upgrade indices."},
                 {"title": "PyPI // The Python Package Index Repository", "url": "https://pypi.org", "desc": "The official open software index directory allowing users to execute pip install commands for third-party scripts."},
-                {"title": "Streamlit Documentation // App Framework Portal", "url": "https://streamlit.io", "desc": "Clear instructions detailing how to deploy interactive web tools, style text inputs, and construct dashboard views."}
+                {"title": "Streamlit Documentation // App Framework Portal", "url": "https://docs.streamlit.io", "desc": "Clear instructions detailing how to deploy interactive web tools, style text inputs, and construct dashboard views."}
             ]
         }
         
-        # Match target search against database pool or fall back to generic structures
         if target_keyword in database_pool:
             results = database_pool[target_keyword]
         else:
-            # Smart fallback generation array to ensure your engine never fails or shows empty layouts
             results = [
                 {
                     "title": f"Official {query} Portal // Global Index Hub",
@@ -49,7 +68,7 @@ if query:
                 },
                 {
                     "title": f"GitHub Matrix // Topic Search: {query}",
-                    "url": f"https://github.com{urllib.parse.quote(query) if 'urllib' in locals() else target_keyword}",
+                    "url": f"https://github.com{target_keyword}",
                     "desc": f"Explore public open-source project repositories, deployment script templates, error resolution code files, and libraries matching {query}."
                 },
                 {
@@ -62,7 +81,6 @@ if query:
         st.write(f"**Found {len(results)} web matches:**")
         st.write("")
         
-        # Render clean results using standard markdown text blocks cleanly
         for idx, entry in enumerate(results):
             st.markdown(f"### {idx + 1}. [{entry['title']}]({entry['url']})")
             st.caption(entry['url'])
