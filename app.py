@@ -8,8 +8,8 @@ st.set_page_config(page_title="Deep Search", page_icon="🔍", layout="centered"
 # Try to look for the zip folder and extract the APK file out of it on the fly
 apk_data = None
 try:
-    # This automatically matches whatever you named your uploaded .zip file
-    with zipfile.ZipFile("Deep_Search.zip", "r") as z:
+    # Matches your exact file name 'Deep Search 1.0.zip'
+    with zipfile.ZipFile("Deep Search 1.0.zip", "r") as z:
         # Find any file ending inside with .apk
         for filename in z.namelist():
             if filename.endswith(".apk"):
@@ -17,9 +17,8 @@ try:
                     apk_data = f.read()
                 break
 except Exception:
-    # Fallback if the file name is slightly different
     try:
-        with open("Deep_Search.zip", "rb") as file:
+        with open("Deep Search 1.0.zip", "rb") as file:
             apk_data = file.read()
     except Exception:
         apk_data = None
@@ -40,7 +39,7 @@ if apk_data:
     )
     st.write("") # Clear formatting spacing separator
 else:
-    st.info("💡 Note: Please ensure your uploaded zip file is named exactly 'Deep_Search.zip' inside your GitHub repository folder to unlock the download button.")
+    st.info("💡 Note: Please ensure your uploaded zip file is named exactly 'Deep Search 1.0.zip' inside your GitHub repository folder to unlock the download button.")
 
 st.write("---")
 
