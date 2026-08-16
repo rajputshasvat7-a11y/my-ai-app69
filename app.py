@@ -66,9 +66,8 @@ if not st.session_state.user_email:
         "prompt=select_account"
     )
     
-    # Native Streamlit button layout to handle safe redirection
-    if st.button("Sign in with Google", type="primary"):
-        st.markdown(f'<meta http-equiv="refresh" content="0; url={auth_url}">', unsafe_allow_html=True)
+    # Bulletproof Native Link Button that opens on the parent page layout natively
+    st.link_button("Sign in with Google", auth_url, type="primary", use_container_width=True)
     st.stop()
 
 # Email Restriction Verification Layer
