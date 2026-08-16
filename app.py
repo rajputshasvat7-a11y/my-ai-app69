@@ -67,10 +67,10 @@ if prompt := st.chat_input("Ask Deep Search AI anything..."):
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
         try:
-            # Using the required modern chats API architecture for gemini-2.5-flash
-            response = client.chats.create(
+            # Correct keyword argument format using standard generation endpoints
+            response = client.models.generate_content(
                 model='gemini-2.5-flash',
-                message=prompt,
+                contents=prompt,
             )
             full_response = response.text
             message_placeholder.markdown(full_response)
