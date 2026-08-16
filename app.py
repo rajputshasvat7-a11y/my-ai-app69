@@ -1,36 +1,40 @@
 import streamlit as st
+import asyncio
 from duckduckgo_search import DDGS
 
 # Setup webpage configuration for mobile and PC
-st.set_page_config(page_title="Deep Search AI", page_icon="🔍", layout="centered")
-st.title("🔍 Deep Search")
+st.set_page_config(page_title="Deep Search Engine", page_icon="🔍", layout="wide")
 
-# Initialize chat history in session state
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+st.markdown("<h1 style='text-align: center;'>🔍 Deep Search Engine</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: gray;'>Search the live web directly from mobile or PC</p>", unsafe_allow_html=True)
 
-# Display past chat messages
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+# User Search Input Bar
+query = st.text_input("", placeholder="Search the web or type a URL...")
 
-# React to user input
-if prompt := st.chat_input("Ask Deep Search anything..."):
-    # Display user message
-    st.chat_message("user").markdown(prompt)
-    st.session_state.messages.append({"role": "user", "content": prompt})
-
-    # Generate response from DuckDuckGo AI gateway (Meta-Llama 3.3 architecture)
-    with st.chat_message("assistant"):
-        message_placeholder = st.empty()
+if query:
+    with st.spinner(f"Searching the live web for '{query}'..."):
         try:
-            with DDGS() as ddgs:
-                # Calls the robust chat engine using llama model directly
-                response = ddgs.chat(prompt, model="llama-3.3-70b")
-                full_response = str(response)
-            message_placeholder.markdown(full_response)
+            # Async function to scrape live web snippets securely
+            async def fetch_results():
+                async with DDGS() as ddgs:
+                    # Fetches top 8 real-time web results
+                    results = [r for r in ddgs.text(query, max_results=8)]
+                    return results
+
+            web_results = asyncio.run(fetch_results())
+
+            if web_results:
+                st.success(f"Found {len(web_results)} live matches:")
+                st.write("---")
+                
+                # Display results beautifully with clean layouts
+                for idx, result in enumerate(web_results, 1):
+                    st.markdown(f"### {idx}. [{result['title']}]({result['href']})")
+                    st.markdown(f"*{result['href']}*")
+                    st.info(result['body'])
+                    st.write("")
+            else:
+                st.warning("No search matches found. Try different keywords.")
+
         except Exception as e:
-            full_response = f"Initializing engine connection. Please press the arrow to resend. (Error: {e})"
-            message_placeholder.markdown(full_response)
-            
-    st.session_state.messages.append({"role": "assistant", "content": full_response})
+            st.error(f"Engine connection timed out. Please try hitting enter again. (Error: {e})")
