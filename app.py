@@ -6,11 +6,6 @@ import json
 st.set_page_config(page_title="Deep Search AI", page_icon="🔍", layout="centered")
 st.title("🔍 Deep Search")
 
-# Pull secret token safely
-if "HF_TOKEN" not in st.secrets:
-    st.error("Please configure your HF_TOKEN in the Streamlit Cloud dashboard settings.")
-    st.stop()
-
 # Initialize chat history in session state
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -26,37 +21,28 @@ if prompt := st.chat_input("Ask Deep Search anything..."):
     st.chat_message("user").markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
 
-    # Generate response from Hugging Face Serverless Architecture
+    # Generate response from free public fallback server
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
         
-        # Structure payload standard for Qwen
-        api_url = "https://huggingface.co"
+        api_url = "https://openrouter.ai"
         headers = {
-            "Authorization": f"Bearer {st.secrets['HF_TOKEN']}",
             "Content-Type": "application/json"
         }
+        # Uses the completely free, zero-key public meta-llama model
         payload = {
-            "inputs": prompt,
-            "parameters": {"max_new_tokens": 512}
+            "model": "meta-llama/llama-3.2-3b-instruct:free",
+            "messages": [{"role": "user", "content": prompt}]
         }
         
         try:
             req = urllib.request.Request(api_url, data=json.dumps(payload).encode("utf-8"), headers=headers)
             with urllib.request.urlopen(req) as response:
                 result = json.loads(response.read().decode("utf-8"))
-                
-                # Bulletproof text parsing for Hugging Face list outputs
-                if isinstance(result, list) and len(result) > 0:
-                    full_response = result[0].get("generated_text", "No text found.")
-                elif isinstance(result, dict):
-                    full_response = result.get("generated_text", str(result))
-                else:
-                    full_response = str(result)
-                    
+                full_response = result["choices"][0]["message"]["content"]
             message_placeholder.markdown(full_response)
         except Exception as e:
-            full_response = f"Error processing response: {e}"
+            full_response = f"Connection error: {e}. Please hit Enter again to resend."
             message_placeholder.markdown(full_response)
             
     st.session_state.messages.append({"role": "assistant", "content": full_response})
