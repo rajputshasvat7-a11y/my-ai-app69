@@ -16,7 +16,8 @@ if query:
         try:
             # Pure synchronous execution layout for instant data fetches
             with DDGS() as ddgs:
-                results = list(ddgs.text(query, max_results=8))
+                # 'wt-wt' forces the global engine keyword match fallback route
+                results = list(ddgs.text(query, region="wt-wt", max_results=8))
 
             if results:
                 st.success(f"Found {len(results)} live matches:")
