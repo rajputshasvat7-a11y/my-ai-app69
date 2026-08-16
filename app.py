@@ -55,18 +55,19 @@ if not st.session_state.user_email:
     st.markdown("<h2 style='text-align: center;'>🔐 Access Protected</h2>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center;'>Please authenticate with your approved Google account to open Deep Search Engine.</p>", unsafe_allow_html=True)
     
-    # Generate Google Authorization URL Endpoint
+    # Corrected Google Authorization Endpoint Path Sequence
     redirect_uri = "https://streamlit.app"
-    auth_url = (
-        "https://google.com?"
-        "response_type=code&"
-        f"client_id={st.secrets['GOOGLE_CLIENT_ID']}&"
-        f"redirect_uri={redirect_uri}&"
-        "scope=openid%20email&"
-        "prompt=select_account"
-    )
     
-    # Bulletproof Native Link Button that opens on the parent page layout natively
+    params = {
+        "client_id": st.secrets["GOOGLE_CLIENT_ID"],
+        "redirect_uri": redirect_uri,
+        "response_type": "code",
+        "scope": "openid email",
+        "prompt": "select_account"
+    }
+    auth_url = "https://google.com?" + urllib.parse.urlencode(params)
+    
+    # Clean Native Streamlit redirection trigger 
     st.link_button("Sign in with Google", auth_url, type="primary", use_container_width=True)
     st.stop()
 
