@@ -1,6 +1,8 @@
 import streamlit as st
-from duckduckgo_search import DDGS
-from urllib.parse import urlparse
+import urllib.request
+import urllib.parse
+import json
+import re
 
 # Setup premium layout
 st.set_page_config(page_title="Deep Search Engine // Cyber-Hub", page_icon="🎮", layout="wide")
@@ -115,29 +117,63 @@ if query:
     st.write("") 
     with st.spinner("SCANNING THE QUANTUM WEB MATRICES..."):
         try:
-            with DDGS() as ddgs:
-                results = list(ddgs.text(query, region="wt-wt", max_results=8))
+            # Bulletproof, dependency-free direct HTTP networking layer
+            encoded_query = urllib.parse.quote(query)
+            api_url = f"https://duckduckgo.com{encoded_query}"
+            
+            req = urllib.request.Request(
+                api_url, 
+                headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+            )
+            
+            with urllib.request.urlopen(req) as response:
+                html_content = response.read().decode('utf-8')
+            
+            # Extract matches using clean pattern matching
+            links = re.findall(r'<a class="result__url"[^>]*href="([^"]+)"', html_content)
+            titles = re.findall(r'<a class="result__snippet"[^>]*href="[^"]+">([^<]+)</a>', html_content)
+            snippets = re.findall(r'<td class="result__snippet">([^<]+)</td>', html_content)
+            
+            # Fallback patterns to capture varying structure configurations
+            if not links:
+                links = re.findall(r'href="([^"]+)" class="links_main__href"', html_content)
+                titles = re.findall(r'class="links_main__href">([^<]+)</a>', html_content)
+                snippets = re.findall(r'class="links_main__snippet">([^<]+)</div>', html_content)
 
-            if results:
-                st.markdown(f"<p style='color: #ff0055; font-weight: bold;'>[+] TARGET MATCHES LOCATED: {len(results)}</p>", unsafe_allow_html=True)
+            # Standardize sizes across parsed structures
+            min_length = min(len(links), len(titles), len(snippets), 8)
+
+            if min_length > 0:
+                st.markdown(f"<p style='color: #ff0055; font-weight: bold;'>[+] TARGET MATCHES LOCATED: {min_length}</p>", unsafe_allow_html=True)
                 st.write("---")
                 
-                for idx, result in enumerate(results, 1):
-                    # Automatically isolate base web domain to extract target icons
-                    parsed_url = urlparse(result['href'])
-                    base_domain = f"{parsed_url.scheme}://{parsed_url.netloc}"
+                for idx in range(min_length):
+                    raw_url = links[idx]
+                    # Parse out proxy nesting parameters if existing
+                    if "uddg=" in raw_url:
+                        raw_url = urllib.parse.unquote(raw_url.split("uddg=")[1].split("&")[0])
                     
-                    # Call Google's high-resolution global favicon extraction endpoint
+                    title_text = titles[idx].strip()
+                    desc_text = snippets[idx].strip()
+                    
+                    # Isolate clean domain base targets
+                    try:
+                        domain_parts = raw_url.split("//")[1].split("/")[0]
+                        base_domain = f"https://{domain_parts}"
+                    except Exception:
+                        base_domain = raw_url
+
+                    # Pull high-resolution logos automatically
                     favicon_url = f"https://google.com{base_domain}"
                     
                     card_html = f"""
                     <div class="gaming-card">
                         <div class="card-header-layout">
                             <img class="favicon-logo" src="{favicon_url}" alt="logo">
-                            <a class="gaming-link" href="{result['href']}" target="_blank">{idx}. {result['title']}</a>
+                            <a class="gaming-link" href="{raw_url}" target="_blank">{idx + 1}. {title_text}</a>
                         </div>
-                        <div class="gaming-url">>> TARGET_URI: {result['href']}</div>
-                        <div class="gaming-desc">{result['body']}</div>
+                        <div class="gaming-url">>> TARGET_URI: {raw_url}</div>
+                        <div class="gaming-desc">{desc_text}</div>
                     </div>
                     """
                     st.markdown(card_html, unsafe_allow_html=True)
@@ -145,4 +181,4 @@ if query:
                 st.markdown("<div style='border: 2px solid #ff0055; border-radius: 4px; padding: 15px; color: #ff0055; font-weight: bold; background: rgba(255,0,85,0.1);'>[-] SEARCH MATRIX EMPTY. TARGET UNRESOLVED.</div>", unsafe_allow_html=True)
 
         except Exception as e:
-            st.error(f"NETWORK CRITICAL FAILURE: TERMINAL LINK DROPPED. (Details: {e})")
+            st.markdown(f"<div style='color:#ff0055;'>NETWORK FAILURE: {e}</div>", unsafe_allow_html=True)
