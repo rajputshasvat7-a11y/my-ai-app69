@@ -1,9 +1,9 @@
 import streamlit as st
 import zipfile
-import urllib.parse
+from google import genai
 
-# Setup premium wide layout
-st.set_page_config(page_title="Deep Search Engine", page_icon="🔍", layout="wide")
+# Setup simple clean centered layout
+st.set_page_config(page_title="Deep Search AI", page_icon="🔍", layout="centered")
 
 # Try to look for the zip folder and extract the APK file out of it on the fly
 apk_data = None
@@ -21,9 +21,9 @@ except Exception:
     except Exception:
         apk_data = None
 
-# Main Screen Application Header Configuration
-st.markdown("<h1 style='text-align: center; color: #1f77b4;'>🔍 Deep Search</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #7f7f7f;'>Multi-Mode Content Extraction Platform</p>", unsafe_allow_html=True)
+# Main Screen App Header
+st.title("🔍 Deep Search AI")
+st.write("Powered by Google GenAI Hub Architecture.")
 
 # Main Screen Download Button Layout Placement
 if apk_data:
@@ -36,87 +36,45 @@ if apk_data:
         use_container_width=True
     )
     st.write("") 
+else:
+    st.info("💡 Note: Please ensure your uploaded zip file is named exactly 'Deep Search 1.0.zip' inside your GitHub repository folder to unlock the download button.")
 
 st.write("---")
 
-# Regular search input bar
-query = st.text_input("Enter search keywords", placeholder="Type keywords or parts to scan...", label_visibility="collapsed")
+# Initialize Gemini Client safely using Streamlit Secrets panel configurations
+try:
+    client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+except Exception:
+    st.error("Missing Security Credentials: Go to your Streamlit dashboard Settings -> Secrets and define your key format: GEMINI_API_KEY = 'your_key'")
+    st.stop()
 
-if query:
-    # Encodes spaces safely into standard HTTP url strings (+ signs instead of %20)
-    encoded_query = urllib.parse.quote_plus(query)
-    
-    # Feature-Driven Structural Mode Tabs Setup
-    tab_web, tab_ai, tab_shop = st.tabs(["🌐 Core Index Links", "✨ AI Intelligence Node", "🛍️ Shopping Compare"])
-    
-    # ================= FEATURE 1: CORE INDEX LINKS =================
-    with tab_web:
-        st.write(f"**Indexed results matching your query parameter:**")
-        st.write("")
-        
-        # Primary Targeted Result Wrapper Box
-        with st.container(border=True):
-            st.markdown(f"### [Marketplace Index Matrix // Query: {query}](https://google.com{encoded_query})")
-            st.caption(f"https://web-index.net{encoded_query}")
-            st.write(f"Analyze comprehensive web listings, data specifications, documentation metrics, and articles tracking the parameter: {query}.")
-        
-        st.write("")
-        
-        # Secondary General Knowledge Wrapper Box
-        with st.container(border=True):
-            st.markdown(f"### [Reference Encyclopedia Data Node // {query}](https://wikipedia.org{encoded_query})")
-            st.caption(f"https://wikipedia.org{encoded_query}")
-            st.write(f"Review historical contexts, structural descriptions, engineering breakdowns, and standard documentation files regarding {query}.")
-        
-        st.write("---")
+# Initialize chat history state arrays natively inside session storage properties
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-    # ================= FEATURE 2: AI INTELLIGENCE NODE =================
-    with tab_ai:
-        st.markdown("### ✨ Deep AI Overview Matrix")
-        st.write("---")
-        
-        # Generates a clean internal AI analytical block dynamically
-        ai_summary = f"""
-        **Automated Intelligence Extraction for "{query}":**
-        
-        * **Target Identity Cluster:** Context indicates processing a search query for `{query}`.
-        * **Operational Assessment:** The keyword structure points toward components matching product parameters, current pricing tracking profiles, or specific open information nodes.
-        * **Action Items:** To analyze specific retail merchant pricing matrix arrays or explore purchasing channels directly, click the **Shopping Compare mode tab** right above this window container!
-        """
-        st.info(ai_summary)
+# Continuously display existing multi-turn chat text streams
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
-    # ================= FEATURE 3: SHOPPING COMPARE =================
-    with tab_shop:
-        st.markdown(f"### 🛍️ Live Price Evaluation Matrix // {query}")
-        st.write("---")
-        
-        st.write("Reviewing matched commercial e-commerce storefront entries across the web network:")
-        st.write("")
-        
-        # Create 3 side-by-side metric layout columns
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            with st.container(border=True):
-                st.subheader("🛒 Store Node A")
-                st.metric(label="Amazon Pricing Index", value="₹1,199.00", delta="-15% Reduction")
-                # Corrected parameter search formatting string for Amazon India
-                st.markdown(f"[Launch Store Page ↗](https://amazon.in{encoded_query})")
+# React to fresh user conversational inputs
+if prompt := st.chat_input("Ask Deep Search AI anything..."):
+    # Display user input layout card
+    st.chat_message("user").markdown(prompt)
+    st.session_state.messages.append({"role": "user", "content": prompt})
+
+    # Call official high-speed stable Gemini production model infrastructure
+    with st.chat_message("assistant"):
+        message_placeholder = st.empty()
+        try:
+            response = client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=prompt,
+            )
+            full_response = response.text
+            message_placeholder.markdown(full_response)
+        except Exception as e:
+            full_response = f"AI Node dropped context request parameter execution. (Details: {e})"
+            message_placeholder.markdown(full_response)
             
-        with col2:
-            with st.container(border=True):
-                st.subheader("⚡ Store Node B")
-                st.metric(label="Flipkart Pricing Index", value="₹1,149.00", delta="Lowest Tracker", delta_color="inverse")
-                # Corrected parameter search formatting string for Flipkart
-                st.markdown(f"[Launch Store Page ↗](https://flipkart.com{encoded_query})")
-            
-        with col3:
-            with st.container(border=True):
-                st.subheader("🏢 Regional Local")
-                st.metric(label="Physical Hardware Average", value="₹1,390.00", delta="+8% Deviation")
-                # Corrected parameter search formatting string for local tracking
-                st.markdown(f"[Launch Store Page ↗](https://google.com{encoded_query}+near+me)")
-            
-        st.write("")
-        st.write("---")
-        st.caption("Pricing database streams pull from active web repository parameter matrices.")
+    st.session_state.messages.append({"role": "assistant", "content": full_response})
